@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "target/index.js",
   "scripts": {
-    "start": "node ."
+    "start": "node .",
+    "test": "jest --watch --notify",
+    "test:ci": "jest --ci"
   },
   "license": "MIT",
   "dependencies": {
@@ -11,12 +13,39 @@
     "@types/koa-bodyparser": "^4.2.0",
     "@types/koa-multer": "^1.0.0",
     "@types/koa-router": "^7.0.27",
+    "class-validator": "^0.8.5",
     "koa": "^2.5.0",
     "koa-bodyparser": "^4.2.0",
     "koa-multer": "^1.0.2",
     "koa-router": "^7.4.0",
     "pg": "^7.4.1",
     "routing-controllers": "^0.7.7",
+    "supertest": "^3.0.0",
     "typeorm": "^0.2.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^22.2.2",
+    "@types/node-fetch": "^1.6.7",
+    "@types/supertest": "^2.0.4",
+    "jest": "^22.4",
+    "node-fetch": "^2.1.2",
+    "nodemon": "^1.17.2",
+    "supertest": "^3.0.0",
+    "ts-jest": "^22.4.2",
+    "typescript": "^2.7.2"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }

@@ -7,7 +7,7 @@ export default class Game extends BaseEntity {
 
     @PrimaryGeneratedColumn()
     id?: number
-
+    
     @Column('text', { nullable: false })
     name: string
 

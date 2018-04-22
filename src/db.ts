@@ -31,7 +31,7 @@ export default () =>
         entities: [
             Game
         ],
-        synchronize: true,
+        //synchronize: true,
         logging: true,
         namingStrategy: new CustomNamingStrategy()
     })

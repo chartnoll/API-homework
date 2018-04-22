@@ -1,19 +1,30 @@
 // src/controller.ts
-import { JsonController, Get, Param, NotFoundError, Put, Body, HttpCode, Post, Authorized } from 'routing-controllers'
+import { JsonController, Get, Param, BadRequestError, Put, Body, Post } from 'routing-controllers'
 import Game from './entity'
-import { checkKey} from './gameCheck'
+import { Column } from 'typeorm'
+import { randomColor, validColors, isMoveValid} from './gameCheck'
+import { IsIn, ValidateIf} from 'class-validator'
+const defaultBoard = [
+    ['o', 'o', 'o'],
+    ['o', 'o', 'o'],
+    ['o', 'o', 'o']
+]
+
+class Update {
+    @Column('text', { nullable: false })
+    name: string
+
+    @ValidateIf(o => o.color)
+    @IsIn(validColors)
+    @Column('text', { nullable: false })
+    color: string
+
+    @Column('json', { nullable: false })
+    board: object
+}
 
 @JsonController()
 export default class GameController {
-
-    /*@Put('/games/:id')
-    async updateGame(
-        @Param('id') id: number,
-        @Body() update: Partial<Game>
-    ) {
-        const game = await Game.findOneById(id)
-        // ... implement
-    }*/
 
     @Get('/games/:id')
     getGame(
@@ -32,25 +43,27 @@ export default class GameController {
     @Put('/games/:id')
     async updateGame(
         @Param('id') id: number,
-        @Body() update: Partial<Game>
+        @Body() { name, color, board }: Update
     ) {
         const game = await Game.findOne(id)
-        
-        if (isBoardChange(update, game.board)) {
-            update.board = 
+
+        if (isMoveValid(board, game) === false) 
+        {
+            console.log("Should be doing something!")
+            throw new BadRequestError('Move not valid!')
         }
-        isBoardUpdate
-        actionUpdate(update)
-        const game = await Game.findOne(id)
-        console.log(`updating game ${id} with ${Object.keys(update)}`)
-        return Game.merge(game, update).save()
+
+        console.log(`updating game ${id} with ${Object.keys({ name, color, board })}`)
+
+        return Game.merge(game, { name, color, board }).save()
     }
 
     @Post('/games')
     async newGame(
         @Body() game: Game
     ) {
-        console.log(`Creating new game ${game}`)
+        game.board = defaultBoard
+        game.color = randomColor()
         return game.save()
     }
 }

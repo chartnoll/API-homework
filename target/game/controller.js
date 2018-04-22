@@ -14,6 +14,30 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const routing_controllers_1 = require("routing-controllers");
 const entity_1 = require("./entity");
+const typeorm_1 = require("typeorm");
+const gameCheck_1 = require("./gameCheck");
+const class_validator_1 = require("class-validator");
+const defaultBoard = [
+    ['o', 'o', 'o'],
+    ['o', 'o', 'o'],
+    ['o', 'o', 'o']
+];
+class Update {
+}
+__decorate([
+    typeorm_1.Column('text', { nullable: false }),
+    __metadata("design:type", String)
+], Update.prototype, "name", void 0);
+__decorate([
+    class_validator_1.ValidateIf(o => o.color),
+    class_validator_1.IsIn(gameCheck_1.validColors),
+    typeorm_1.Column('text', { nullable: false }),
+    __metadata("design:type", String)
+], Update.prototype, "color", void 0);
+__decorate([
+    typeorm_1.Column('json', { nullable: false }),
+    __metadata("design:type", Object)
+], Update.prototype, "board", void 0);
 let GameController = class GameController {
     getGame(id) {
         console.log(`fetching game ${id}`);
@@ -23,20 +47,18 @@ let GameController = class GameController {
         const games = await entity_1.default.find();
         return { games };
     }
-    async updateGame(id, update) {
+    async updateGame(id, { name, color, board }) {
         const game = await entity_1.default.findOne(id);
-        if (isBoardChange(update, game.board)) {
-            update.board =
-            ;
+        if (gameCheck_1.isMoveValid(board, game) === false) {
+            console.log("Should be doing something!");
+            throw new routing_controllers_1.BadRequestError('Move not valid!');
         }
-        isBoardUpdate;
-        actionUpdate(update);
-        const game = await entity_1.default.findOne(id);
-        console.log(`updating game ${id} with ${Object.keys(update)}`);
-        return entity_1.default.merge(game, update).save();
+        console.log(`updating game ${id} with ${Object.keys({ name, color, board })}`);
+        return entity_1.default.merge(game, { name, color, board }).save();
     }
     async newGame(game) {
-        console.log(`Creating new game ${game}`);
+        game.board = defaultBoard;
+        game.color = gameCheck_1.randomColor();
         return game.save();
     }
 };
@@ -58,7 +80,7 @@ __decorate([
     __param(0, routing_controllers_1.Param('id')),
     __param(1, routing_controllers_1.Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:paramtypes", [Number, Update]),
     __metadata("design:returntype", Promise)
 ], GameController.prototype, "updateGame", null);
 __decorate([
